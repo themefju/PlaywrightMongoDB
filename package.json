@@ -1,0 +1,14 @@
+{
+  "name": "playwrightmongodb",
+  "scripts": {},
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.0.3",
+    "mongodb": "^4.15.0",
+    "playwright": "^1.32.3"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.32.3",
+    "typescript": "^5.0.4"
+  }
+}
