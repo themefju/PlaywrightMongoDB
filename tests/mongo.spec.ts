@@ -65,7 +65,7 @@ test.describe('findOne', async () => {
   });
 });
 
-test.describe.only('find', () => {
+test.describe('find', () => {
   test('returns empty array', async () => {
     await find({
       query: { framework: '84302' },
