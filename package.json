@@ -1,6 +1,8 @@
 {
   "name": "playwrightmongodb",
-  "scripts": {},
+  "scripts": {
+    "test-mongo": "npx playwright test mongo.spec.ts"
+  },
   "license": "ISC",
   "dependencies": {
     "dotenv": "^16.0.3",
