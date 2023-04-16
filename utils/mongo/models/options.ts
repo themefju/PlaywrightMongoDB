@@ -1,4 +1,5 @@
 import { Document } from 'mongodb';
+import { Collections } from '../collections';
 
 export interface ConnectOptions {
   uri: string;
@@ -6,7 +7,11 @@ export interface ConnectOptions {
 }
 
 interface DefaultArgs {
-  collection: string;
+  collection: Collections;
+}
+
+export interface DeleteArgs extends DefaultArgs {
+  filter: Document;
 }
 
 export interface FindArgs extends DefaultArgs {

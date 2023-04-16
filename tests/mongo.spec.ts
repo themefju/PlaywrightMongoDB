@@ -2,6 +2,7 @@ import { expect, test } from '@playwright/test';
 import { Collections } from '../utils/mongo/collections';
 import { find, findOne } from '../utils/mongo/find';
 import { insertMany, insertOne } from '../utils/mongo/insert';
+import { deleteMany, deleteOne } from '../utils/mongo/delete';
 
 test.describe('findOne', async () => {
   test('returns null', async () => {
@@ -39,7 +40,7 @@ test.describe('findOne', async () => {
       collection: Collections.ApiTests,
     }).then(async (result) => {
       await findOne({
-        query: { _id: result['_id'] },
+        query: { _id: result._id },
         collection: Collections.ApiTests,
       }).then((nestedResult) => {
         expect(result).not.toBeNull();
@@ -55,7 +56,7 @@ test.describe('findOne', async () => {
       collection: Collections.ApiTests,
     }).then(async (result) => {
       await findOne({
-        query: { _id: result['_id'] },
+        query: { _id: result._id },
         collection: Collections.ApiTests,
       }).then((nestedResult) => {
         expect(nestedResult).not.toBeNull;
@@ -139,6 +140,42 @@ test.describe('insert', () => {
       collection: Collections.ApiTests,
     }).then((result) => {
       expect(result.acknowledged).toBeTruthy;
+    });
+  });
+});
+
+test.describe('delete', () => {
+  test('deletes one document', async () => {
+    await deleteOne({
+      filter: { hurra: false },
+      collection: Collections.ApiTests,
+    }).then((result) => {
+      expect(result.acknowledged).toBeTruthy();
+    });
+  });
+
+  test('works with _id = UUID', async () => {
+    await findOne({
+      query: { hurra: true, manyAtOnce: true },
+      collection: Collections.ApiTests,
+    }).then(async (result) => {
+      if (!result) throw new Error("Result can't be null or undefined");
+
+      await deleteOne({
+        filter: { _id: result._id },
+        collection: Collections.ApiTests,
+      }).then((nestedResult) => {
+        expect(nestedResult.acknowledged).toBeTruthy();
+      });
+    });
+  });
+
+  test('deletes many documents at once', async () => {
+    await deleteMany({
+      filter: { hurra: { $in: [true, false] } },
+      collection: Collections.ApiTests,
+    }).then((result) => {
+      expect(result.acknowledged).toBeTruthy();
     });
   });
 });
