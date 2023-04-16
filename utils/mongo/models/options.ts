@@ -5,7 +5,18 @@ export interface ConnectOptions {
   dbName: string;
 }
 
-export interface FindArgs {
+interface DefaultArgs {
   collection: string;
+}
+
+export interface FindArgs extends DefaultArgs {
   query: Document;
+}
+
+export interface InsertArgs extends DefaultArgs {
+  document: Document;
+}
+
+export interface InsertManyArgs extends DefaultArgs {
+  documents: Document[];
 }

@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { Collections } from '../utils/mongo/collections';
 import { find, findOne } from '../utils/mongo/find';
+import { insertMany, insertOne } from '../utils/mongo/insert';
 
 test.describe('findOne', async () => {
   test('returns null', async () => {
@@ -69,7 +70,7 @@ test.describe('find', () => {
   test('returns empty array', async () => {
     await find({
       query: { framework: '84302' },
-      collection: 'api-tests',
+      collection: Collections.ApiTests,
     }).then((result) => {
       expect(result).toEqual([]);
     });
@@ -78,7 +79,7 @@ test.describe('find', () => {
   test('works with _id = ObjectId', async () => {
     await find({
       query: { test: 'ObjectId' },
-      collection: 'api-tests',
+      collection: Collections.ApiTests,
     }).then((result) => {
       expect(result).not.toBeNull;
       expect(result).toHaveLength(2);
@@ -88,10 +89,56 @@ test.describe('find', () => {
   test('works with _id = UUID', async () => {
     await find({
       query: { test: 'UUID' },
-      collection: 'api-tests',
+      collection: Collections.ApiTests,
     }).then((result) => {
       expect(result).not.toBeNull;
       expect(result).toHaveLength(2);
+    });
+  });
+});
+
+test.describe('insert', () => {
+  test('inserts one document', async () => {
+    await insertOne({
+      document: { inserted: 1, hurra: false },
+      collection: Collections.ApiTests,
+    }).then((result) => {
+      expect(result.acknowledged).toBeTruthy;
+    });
+  });
+
+  test('inserts many documents at once', async () => {
+    await insertMany({
+      documents: [
+        {
+          inserted: 2,
+          hurra: true,
+          manyAtOnce: true,
+        },
+        {
+          inserted: 3,
+          hurra: true,
+          manyAtOnce: true,
+        },
+        {
+          inserted: 4,
+          hurra: true,
+          manyAtOnce: true,
+        },
+        {
+          inserted: 5,
+          hurra: true,
+          manyAtOnce: true,
+        },
+        {
+          inserted: 6,
+          hurra: true,
+          manyAtOnce: true,
+        },
+      ],
+      collection: Collections.ApiTests,
+    }).then((result) => {
+      expect(result.acknowledged).toBeTruthy;
     });
   });
 });
