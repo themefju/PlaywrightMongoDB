@@ -4,6 +4,7 @@ import { find, findOne } from '../utils/mongo/find';
 import { insertMany, insertOne } from '../utils/mongo/insert';
 import { deleteMany, deleteOne } from '../utils/mongo/delete';
 import { updateMany, updateOne } from '../utils/mongo/update';
+import { aggregate } from '../utils/mongo/aggregate';
 
 test.describe('findOne', async () => {
   test('returns null', async () => {
@@ -167,6 +168,27 @@ test.describe('update', () => {
       expect(result.acknowledged).toBeTruthy();
       expect(result.matchedCount).toEqual(5);
       expect(result.modifiedCount).toEqual(5);
+    });
+  });
+});
+
+test.describe('aggregate', () => {
+  test('aggregate one document', async () => {
+    await aggregate({
+      pipeline: [{ $match: { hurra: false } }, { $set: { aggregated: true } }],
+      collection: Collections.ApiTests,
+    }).then((result) => {
+      if (!result) throw new Error("Result can't be null or undefined");
+
+      expect(result).not.toBeNull;
+      expect(result).toHaveLength(1);
+
+      findOne({
+        query: { _id: result[0]._id },
+        collection: Collections.ApiTests,
+      }).then((result) => {
+        expect(result).not.toBeNull;
+      });
     });
   });
 });

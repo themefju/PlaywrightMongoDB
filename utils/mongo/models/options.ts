@@ -10,6 +10,11 @@ interface DefaultArgs {
   collection: Collections;
 }
 
+export interface AggregateArgs extends DefaultArgs {
+  pipeline: Document[];
+  options?: Document;
+}
+
 export interface DeleteArgs extends DefaultArgs {
   filter: Document;
 }
