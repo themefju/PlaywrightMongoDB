@@ -3,6 +3,7 @@ import { Collections } from '../utils/mongo/collections';
 import { find, findOne } from '../utils/mongo/find';
 import { insertMany, insertOne } from '../utils/mongo/insert';
 import { deleteMany, deleteOne } from '../utils/mongo/delete';
+import { updateMany, updateOne } from '../utils/mongo/update';
 
 test.describe('findOne', async () => {
   test('returns null', async () => {
@@ -140,6 +141,32 @@ test.describe('insert', () => {
       collection: Collections.ApiTests,
     }).then((result) => {
       expect(result.acknowledged).toBeTruthy;
+    });
+  });
+});
+
+test.describe('update', () => {
+  test('updates one document', async () => {
+    await updateOne({
+      filter: { hurra: false },
+      update: { $set: { updatedField: true } },
+      collection: Collections.ApiTests,
+    }).then((result) => {
+      expect(result.acknowledged).toBeTruthy();
+      expect(result.matchedCount).toEqual(1);
+      expect(result.modifiedCount).toEqual(1);
+    });
+  });
+
+  test('updates many documents at once', async () => {
+    await updateMany({
+      filter: { hurra: true },
+      update: { $set: { updateManyFields: true } },
+      collection: Collections.ApiTests,
+    }).then((result) => {
+      expect(result.acknowledged).toBeTruthy();
+      expect(result.matchedCount).toEqual(5);
+      expect(result.modifiedCount).toEqual(5);
     });
   });
 });
