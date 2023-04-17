@@ -25,3 +25,9 @@ export interface InsertArgs extends DefaultArgs {
 export interface InsertManyArgs extends DefaultArgs {
   documents: Document[];
 }
+
+export interface UpdateArgs extends DefaultArgs {
+  filter: Document;
+  update: Document | Document[];
+  options?: Document;
+}
