@@ -1,15 +1,24 @@
 import { expect, test } from '@playwright/test';
-import { Collections } from '../utils/mongo/collections';
-import { find, findOne } from '../utils/mongo/find';
-import { insertMany, insertOne } from '../utils/mongo/insert';
-import { deleteMany, deleteOne } from '../utils/mongo/delete';
-import { updateMany, updateOne } from '../utils/mongo/update';
-import { aggregate } from '../utils/mongo/aggregate';
+import { Collections } from '../utils/mongo/commands/collections';
+import { find, findOne } from '../utils/mongo/commands/find';
+import { insertMany, insertOne } from '../utils/mongo/commands/insert';
+import { deleteMany, deleteOne } from '../utils/mongo/commands/delete';
+import { updateMany, updateOne } from '../utils/mongo/commands/update';
+import { aggregate } from '../utils/mongo/commands/aggregate';
+import {
+  deleteAllDataInDB,
+  insertDataForFindCommandInDB,
+} from '../utils/mongo';
 
 test.describe('findOne', async () => {
+  test.beforeEach(async () => {
+    await deleteAllDataInDB();
+    await insertDataForFindCommandInDB();
+  });
+
   test('returns null', async () => {
     await findOne({
-      query: { framework: '84302' },
+      query: { inserted: '84302' },
       collection: Collections.ApiTests,
     }).then((result) => {
       expect(result).toBeNull();

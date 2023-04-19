@@ -1,17 +1,17 @@
+import { ConnectOptions, DeleteArgs } from '../models/options';
+import { defaults } from '../../defaults';
 import { client, defaultOptions } from './connect';
-import { ConnectOptions, UpdateArgs } from './models/options';
-import { defaults } from '../utils';
 
-export async function updateOne(args: UpdateArgs) {
-  const options: ConnectOptions & UpdateArgs = defaults(defaultOptions, args);
+export async function deleteOne(args: DeleteArgs) {
+  const options: ConnectOptions & DeleteArgs = defaults(defaultOptions, args);
 
   return await client(options.uri)
     .connect()
     .then(async (client) => {
-      return await client
+      return client
         .db(options.dbName)
         .collection(options.collection)
-        .updateOne(options.filter, options.update, options.options)
+        .deleteOne(options.filter)
         .then((result) => {
           return result;
         })
@@ -24,16 +24,16 @@ export async function updateOne(args: UpdateArgs) {
     });
 }
 
-export async function updateMany(args: UpdateArgs) {
-  const options: ConnectOptions & UpdateArgs = defaults(defaultOptions, args);
+export async function deleteMany(args: DeleteArgs) {
+  const options: ConnectOptions & DeleteArgs = defaults(defaultOptions, args);
 
   return await client(options.uri)
     .connect()
     .then(async (client) => {
-      return await client
+      return client
         .db(options.dbName)
         .collection(options.collection)
-        .updateMany(options.filter, options.update, options.options)
+        .deleteMany(options.filter)
         .then((result) => {
           return result;
         })

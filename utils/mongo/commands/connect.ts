@@ -1,6 +1,6 @@
 import { MongoClient } from 'mongodb';
 import { UUID } from 'bson';
-import { ConnectOptions } from './models/options';
+import { ConnectOptions } from '../models/options';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
