@@ -79,6 +79,11 @@ test.describe('findOne', async () => {
 });
 
 test.describe('find', () => {
+  test.beforeEach(async () => {
+    await deleteAllDataInDB();
+    await insertDataForFindCommandInDB();
+  });
+
   test('returns empty array', async () => {
     await find({
       query: { framework: '84302' },
