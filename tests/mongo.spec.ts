@@ -115,6 +115,10 @@ test.describe('find', () => {
 });
 
 test.describe('insert', () => {
+  test.beforeEach(async () => {
+    await deleteAllDataInDB();
+  });
+
   test('inserts one document', async () => {
     await insertOne({
       document: { inserted: 1, hurra: false },
@@ -156,6 +160,7 @@ test.describe('insert', () => {
       collection: Collections.ApiTests,
     }).then((result) => {
       expect(result.acknowledged).toBeTruthy;
+      expect(result.insertedCount).toEqual(5);
     });
   });
 });
