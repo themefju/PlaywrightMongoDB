@@ -165,7 +165,7 @@ test.describe('insert', () => {
   });
 });
 
-test.describe.only('update', () => {
+test.describe('update', () => {
   test.beforeEach(async () => {
     await deleteAllDataInDB();
     await insertDataForFindCommandInDB();
@@ -198,21 +198,30 @@ test.describe.only('update', () => {
 });
 
 test.describe('aggregate', () => {
+  test.beforeEach(async () => {
+    await deleteAllDataInDB();
+    await insertDataForFindCommandInDB();
+  });
+
   test('aggregate one document', async () => {
     await aggregate({
-      pipeline: [{ $match: { hurra: false } }, { $set: { aggregated: true } }],
+      pipeline: [
+        { $match: { inserted: { $in: [1, 6] } } },
+        { $set: { aggregated: true } },
+      ],
       collection: Collections.ApiTests,
-    }).then((result) => {
+    }).then(async (result) => {
       if (!result) throw new Error("Result can't be null or undefined");
 
       expect(result).not.toBeNull;
-      expect(result).toHaveLength(1);
+      expect(result).toHaveLength(2);
 
-      findOne({
+      await findOne({
         query: { _id: result[0]._id },
         collection: Collections.ApiTests,
       }).then((result) => {
         expect(result).not.toBeNull;
+        expect(result.inserted).toEqual(1);
       });
     });
   });
