@@ -1,9 +1,9 @@
-import { ConnectOptions, InsertArgs, InsertManyArgs } from './models/options';
-import { defaults } from '../utils';
 import { client, defaultOptions } from './connect';
+import { ConnectOptions, UpdateArgs } from '../models/options';
+import { defaults } from '../../defaults';
 
-export async function insertOne(args: InsertArgs) {
-  const options: ConnectOptions & InsertArgs = defaults(defaultOptions, args);
+export async function updateOne(args: UpdateArgs) {
+  const options: ConnectOptions & UpdateArgs = defaults(defaultOptions, args);
 
   return await client(options.uri)
     .connect()
@@ -11,7 +11,7 @@ export async function insertOne(args: InsertArgs) {
       return await client
         .db(options.dbName)
         .collection(options.collection)
-        .insertOne(options.document)
+        .updateOne(options.filter, options.update, options.options)
         .then((result) => {
           return result;
         })
@@ -24,11 +24,8 @@ export async function insertOne(args: InsertArgs) {
     });
 }
 
-export async function insertMany(args: InsertManyArgs) {
-  const options: ConnectOptions & InsertManyArgs = defaults(
-    defaultOptions,
-    args
-  );
+export async function updateMany(args: UpdateArgs) {
+  const options: ConnectOptions & UpdateArgs = defaults(defaultOptions, args);
 
   return await client(options.uri)
     .connect()
@@ -36,7 +33,7 @@ export async function insertMany(args: InsertManyArgs) {
       return await client
         .db(options.dbName)
         .collection(options.collection)
-        .insertMany(options.documents)
+        .updateMany(options.filter, options.update, options.options)
         .then((result) => {
           return result;
         })

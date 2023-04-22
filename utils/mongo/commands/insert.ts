@@ -1,9 +1,9 @@
+import { ConnectOptions, InsertArgs, InsertManyArgs } from '../models/options';
+import { defaults } from '../../defaults';
 import { client, defaultOptions } from './connect';
-import { ConnectOptions, FindArgs } from './models/options';
-import { defaults } from '../utils';
 
-export async function findOne(args: FindArgs) {
-  const options: ConnectOptions & FindArgs = defaults(defaultOptions, args);
+export async function insertOne(args: InsertArgs) {
+  const options: ConnectOptions & InsertArgs = defaults(defaultOptions, args);
 
   return await client(options.uri)
     .connect()
@@ -11,7 +11,7 @@ export async function findOne(args: FindArgs) {
       return await client
         .db(options.dbName)
         .collection(options.collection)
-        .findOne(options.query)
+        .insertOne(options.document)
         .then((result) => {
           return result;
         })
@@ -24,8 +24,11 @@ export async function findOne(args: FindArgs) {
     });
 }
 
-export async function find(args: FindArgs) {
-  const options: ConnectOptions & FindArgs = defaults(defaultOptions, args);
+export async function insertMany(args: InsertManyArgs) {
+  const options: ConnectOptions & InsertManyArgs = defaults(
+    defaultOptions,
+    args
+  );
 
   return await client(options.uri)
     .connect()
@@ -33,8 +36,7 @@ export async function find(args: FindArgs) {
       return await client
         .db(options.dbName)
         .collection(options.collection)
-        .find(options.query)
-        .toArray()
+        .insertMany(options.documents)
         .then((result) => {
           return result;
         })

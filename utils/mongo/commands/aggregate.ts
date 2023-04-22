@@ -1,5 +1,5 @@
-import { AggregateArgs, ConnectOptions } from './models/options';
-import { defaults } from '../utils';
+import { AggregateArgs, ConnectOptions } from '../models/options';
+import { defaults } from '../../defaults';
 import { client, defaultOptions } from './connect';
 
 export async function aggregate(args: AggregateArgs) {

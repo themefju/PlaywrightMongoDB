@@ -1,15 +1,21 @@
 import { expect, test } from '@playwright/test';
-import { Collections } from '../utils/mongo/collections';
-import { find, findOne } from '../utils/mongo/find';
-import { insertMany, insertOne } from '../utils/mongo/insert';
-import { deleteMany, deleteOne } from '../utils/mongo/delete';
-import { updateMany, updateOne } from '../utils/mongo/update';
-import { aggregate } from '../utils/mongo/aggregate';
+import { Collections } from '../utils/collections';
+import { find, findOne } from '../utils/mongo/commands/find';
+import { insertMany, insertOne } from '../utils/mongo/commands/insert';
+import { deleteMany, deleteOne } from '../utils/mongo/commands/delete';
+import { updateMany, updateOne } from '../utils/mongo/commands/update';
+import { aggregate } from '../utils/mongo/commands/aggregate';
+import { deleteAllDataInDB, insertDataInDB } from '../utils/mongo';
 
 test.describe('findOne', async () => {
+  test.beforeEach(async () => {
+    await deleteAllDataInDB();
+    await insertDataInDB();
+  });
+
   test('returns null', async () => {
     await findOne({
-      query: { framework: '84302' },
+      query: { inserted: '84302' },
       collection: Collections.ApiTests,
     }).then((result) => {
       expect(result).toBeNull();
@@ -70,6 +76,11 @@ test.describe('findOne', async () => {
 });
 
 test.describe('find', () => {
+  test.beforeEach(async () => {
+    await deleteAllDataInDB();
+    await insertDataInDB();
+  });
+
   test('returns empty array', async () => {
     await find({
       query: { framework: '84302' },
@@ -101,6 +112,10 @@ test.describe('find', () => {
 });
 
 test.describe('insert', () => {
+  test.beforeEach(async () => {
+    await deleteAllDataInDB();
+  });
+
   test('inserts one document', async () => {
     await insertOne({
       document: { inserted: 1, hurra: false },
@@ -142,26 +157,33 @@ test.describe('insert', () => {
       collection: Collections.ApiTests,
     }).then((result) => {
       expect(result.acknowledged).toBeTruthy;
+      expect(result.insertedCount).toEqual(5);
     });
   });
 });
 
 test.describe('update', () => {
+  test.beforeEach(async () => {
+    await deleteAllDataInDB();
+    await insertDataInDB();
+  });
+
   test('updates one document', async () => {
     await updateOne({
-      filter: { hurra: false },
-      update: { $set: { updatedField: true } },
+      filter: { updateOne: true },
+      update: { $set: { updateManyFields: false } },
       collection: Collections.ApiTests,
     }).then((result) => {
       expect(result.acknowledged).toBeTruthy();
       expect(result.matchedCount).toEqual(1);
       expect(result.modifiedCount).toEqual(1);
+      expect(result.upsertedId).toBeNull();
     });
   });
 
   test('updates many documents at once', async () => {
     await updateMany({
-      filter: { hurra: true },
+      filter: { updateOne: false },
       update: { $set: { updateManyFields: true } },
       collection: Collections.ApiTests,
     }).then((result) => {
@@ -173,30 +195,44 @@ test.describe('update', () => {
 });
 
 test.describe('aggregate', () => {
+  test.beforeEach(async () => {
+    await deleteAllDataInDB();
+    await insertDataInDB();
+  });
+
   test('aggregate one document', async () => {
     await aggregate({
-      pipeline: [{ $match: { hurra: false } }, { $set: { aggregated: true } }],
+      pipeline: [
+        { $match: { inserted: { $in: [1, 6] } } },
+        { $set: { aggregated: true } },
+      ],
       collection: Collections.ApiTests,
-    }).then((result) => {
+    }).then(async (result) => {
       if (!result) throw new Error("Result can't be null or undefined");
 
       expect(result).not.toBeNull;
-      expect(result).toHaveLength(1);
+      expect(result).toHaveLength(2);
 
-      findOne({
+      await findOne({
         query: { _id: result[0]._id },
         collection: Collections.ApiTests,
       }).then((result) => {
         expect(result).not.toBeNull;
+        expect(result.inserted).toEqual(1);
       });
     });
   });
 });
 
 test.describe('delete', () => {
+  test.beforeEach(async () => {
+    await deleteAllDataInDB();
+    await insertDataInDB();
+  });
+
   test('deletes one document', async () => {
     await deleteOne({
-      filter: { hurra: false },
+      filter: { inserted: 3 },
       collection: Collections.ApiTests,
     }).then((result) => {
       expect(result.acknowledged).toBeTruthy();
@@ -205,7 +241,23 @@ test.describe('delete', () => {
 
   test('works with _id = UUID', async () => {
     await findOne({
-      query: { hurra: true, manyAtOnce: true },
+      query: { test: 'UUID' },
+      collection: Collections.ApiTests,
+    }).then(async (result) => {
+      if (!result) throw new Error("Result can't be null or undefined");
+
+      await deleteOne({
+        filter: { _id: result._id },
+        collection: Collections.ApiTests,
+      }).then((nestedResult) => {
+        expect(nestedResult.acknowledged).toBeTruthy();
+      });
+    });
+  });
+
+  test('works with _id = ObjectId', async () => {
+    await findOne({
+      query: { test: 'ObjectId' },
       collection: Collections.ApiTests,
     }).then(async (result) => {
       if (!result) throw new Error("Result can't be null or undefined");
@@ -221,10 +273,17 @@ test.describe('delete', () => {
 
   test('deletes many documents at once', async () => {
     await deleteMany({
-      filter: { hurra: { $in: [true, false] } },
+      filter: { manyAtOnce: true },
       collection: Collections.ApiTests,
-    }).then((result) => {
+    }).then(async (result) => {
       expect(result.acknowledged).toBeTruthy();
+
+      await find({
+        query: {},
+        collection: Collections.ApiTests,
+      }).then((result) => {
+        expect(result).toEqual([]);
+      });
     });
   });
 });
