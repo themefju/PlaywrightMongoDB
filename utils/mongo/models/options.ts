@@ -1,5 +1,5 @@
 import { Document } from 'mongodb';
-import { Collections } from '../collections';
+import { Collections } from '../../collections';
 
 export interface ConnectOptions {
   uri: string;

@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { Collections } from '../utils/mongo/commands/collections';
+import { Collections } from '../utils/collections';
 import { find, findOne } from '../utils/mongo/commands/find';
 import { insertMany, insertOne } from '../utils/mongo/commands/insert';
 import { deleteMany, deleteOne } from '../utils/mongo/commands/delete';
@@ -165,22 +165,28 @@ test.describe('insert', () => {
   });
 });
 
-test.describe('update', () => {
+test.describe.only('update', () => {
+  test.beforeEach(async () => {
+    await deleteAllDataInDB();
+    await insertDataForFindCommandInDB();
+  });
+
   test('updates one document', async () => {
     await updateOne({
-      filter: { hurra: false },
-      update: { $set: { updatedField: true } },
+      filter: { updateOne: true },
+      update: { $set: { updateManyFields: false } },
       collection: Collections.ApiTests,
     }).then((result) => {
       expect(result.acknowledged).toBeTruthy();
       expect(result.matchedCount).toEqual(1);
       expect(result.modifiedCount).toEqual(1);
+      expect(result.upsertedId).toBeNull();
     });
   });
 
   test('updates many documents at once', async () => {
     await updateMany({
-      filter: { hurra: true },
+      filter: { updateOne: false },
       update: { $set: { updateManyFields: true } },
       collection: Collections.ApiTests,
     }).then((result) => {
