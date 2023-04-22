@@ -228,9 +228,14 @@ test.describe('aggregate', () => {
 });
 
 test.describe('delete', () => {
+  test.beforeEach(async () => {
+    await deleteAllDataInDB();
+    await insertDataForFindCommandInDB();
+  });
+
   test('deletes one document', async () => {
     await deleteOne({
-      filter: { hurra: false },
+      filter: { inserted: 3 },
       collection: Collections.ApiTests,
     }).then((result) => {
       expect(result.acknowledged).toBeTruthy();
@@ -239,7 +244,7 @@ test.describe('delete', () => {
 
   test('works with _id = UUID', async () => {
     await findOne({
-      query: { hurra: true, manyAtOnce: true },
+      query: { test: 'UUID' },
       collection: Collections.ApiTests,
     }).then(async (result) => {
       if (!result) throw new Error("Result can't be null or undefined");
@@ -255,10 +260,17 @@ test.describe('delete', () => {
 
   test('deletes many documents at once', async () => {
     await deleteMany({
-      filter: { hurra: { $in: [true, false] } },
+      filter: {},
       collection: Collections.ApiTests,
-    }).then((result) => {
+    }).then(async (result) => {
       expect(result.acknowledged).toBeTruthy();
+
+      await find({
+        query: {},
+        collection: Collections.ApiTests,
+      }).then((result) => {
+        expect(result).toEqual([]);
+      });
     });
   });
 });
