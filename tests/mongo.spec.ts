@@ -5,15 +5,12 @@ import { insertMany, insertOne } from '../utils/mongo/commands/insert';
 import { deleteMany, deleteOne } from '../utils/mongo/commands/delete';
 import { updateMany, updateOne } from '../utils/mongo/commands/update';
 import { aggregate } from '../utils/mongo/commands/aggregate';
-import {
-  deleteAllDataInDB,
-  insertDataForFindCommandInDB,
-} from '../utils/mongo';
+import { deleteAllDataInDB, insertDataInDB } from '../utils/mongo';
 
 test.describe('findOne', async () => {
   test.beforeEach(async () => {
     await deleteAllDataInDB();
-    await insertDataForFindCommandInDB();
+    await insertDataInDB();
   });
 
   test('returns null', async () => {
@@ -81,7 +78,7 @@ test.describe('findOne', async () => {
 test.describe('find', () => {
   test.beforeEach(async () => {
     await deleteAllDataInDB();
-    await insertDataForFindCommandInDB();
+    await insertDataInDB();
   });
 
   test('returns empty array', async () => {
@@ -168,7 +165,7 @@ test.describe('insert', () => {
 test.describe('update', () => {
   test.beforeEach(async () => {
     await deleteAllDataInDB();
-    await insertDataForFindCommandInDB();
+    await insertDataInDB();
   });
 
   test('updates one document', async () => {
@@ -200,7 +197,7 @@ test.describe('update', () => {
 test.describe('aggregate', () => {
   test.beforeEach(async () => {
     await deleteAllDataInDB();
-    await insertDataForFindCommandInDB();
+    await insertDataInDB();
   });
 
   test('aggregate one document', async () => {
@@ -230,7 +227,7 @@ test.describe('aggregate', () => {
 test.describe('delete', () => {
   test.beforeEach(async () => {
     await deleteAllDataInDB();
-    await insertDataForFindCommandInDB();
+    await insertDataInDB();
   });
 
   test('deletes one document', async () => {
@@ -258,9 +255,25 @@ test.describe('delete', () => {
     });
   });
 
+  test('works with _id = ObjectId', async () => {
+    await findOne({
+      query: { test: 'ObjectId' },
+      collection: Collections.ApiTests,
+    }).then(async (result) => {
+      if (!result) throw new Error("Result can't be null or undefined");
+
+      await deleteOne({
+        filter: { _id: result._id },
+        collection: Collections.ApiTests,
+      }).then((nestedResult) => {
+        expect(nestedResult.acknowledged).toBeTruthy();
+      });
+    });
+  });
+
   test('deletes many documents at once', async () => {
     await deleteMany({
-      filter: {},
+      filter: { manyAtOnce: true },
       collection: Collections.ApiTests,
     }).then(async (result) => {
       expect(result.acknowledged).toBeTruthy();

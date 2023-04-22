@@ -10,7 +10,7 @@ export async function deleteAllDataInDB() {
   }).then(() => console.log('Data deleted!'));
 }
 
-export async function insertDataForFindCommandInDB() {
+export async function insertDataInDB() {
   await insertMany({
     collection: Collections.ApiTests,
     documents: [
